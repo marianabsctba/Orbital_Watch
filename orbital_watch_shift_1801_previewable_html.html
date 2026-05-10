@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORBITAL WATCH // SHIFT 18:01</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#050816;color:#d7e3ff;font-family:'Inter',sans-serif;overflow:hidden;height:100vh}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at top left,#10214d55,transparent 30%),radial-gradient(circle at bottom right,#0d6d6d33,transparent 35%),linear-gradient(to bottom,#071122,#02040b);z-index:-2}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px);background-size:100% 3px;opacity:.08;pointer-events:none;animation:scan 8s linear infinite}
+@keyframes scan{0%{transform:translateY(0)}100%{transform:translateY(10px)}}
+.topbar{height:70px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(5,10,25,.8);border-bottom:1px solid rgba(0,255,255,.15);backdrop-filter:blur(12px)}
+.logo{font-family:'Orbitron',sans-serif;font-size:24px;font-weight:900;letter-spacing:2px;color:#79cfff;text-shadow:0 0 15px #39a9ff}
+.clock{font-family:'Orbitron';font-size:18px;color:#ffcb6b}
+.main{display:grid;grid-template-columns:320px 1fr 360px;gap:18px;padding:18px;height:calc(100vh - 70px)}
+.panel{background:rgba(9,15,35,.78);border:1px solid rgba(122,170,255,.12);border-radius:22px;backdrop-filter:blur(16px);box-shadow:0 10px 40px rgba(0,0,0,.35);overflow:hidden;position:relative}
+.panel-title{padding:18px 20px;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.05);color:#8fc9ff}
+.alerts{padding:14px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;height:calc(100% - 60px)}
+.alert{background:linear-gradient(145deg,#0f1834,#09101f);border:1px solid rgba(255,255,255,.06);border-left:4px solid #7ec8ff;border-radius:16px;padding:14px;cursor:pointer;transition:.25s;position:relative;overflow:hidden}
+.alert:hover{transform:translateY(-2px) scale(1.01);box-shadow:0 0 24px rgba(0,255,255,.12)}
+.alert.removing{opacity:0;transform:translateX(-20px) scale(.98);pointer-events:none}
+.alert h3{font-size:14px;margin-bottom:6px}.alert p{font-size:12px;line-height:1.5;opacity:.82}
+.workspace{display:grid;grid-template-rows:220px minmax(130px,160px) 1fr 220px;gap:18px;min-height:0}
+.hero{padding:22px;display:flex;justify-content:space-between;align-items:flex-start;background:linear-gradient(135deg,#111d3d,#0a1327);position:relative;overflow:auto}
+.hero h1{font-family:'Orbitron';font-size:32px;margin-bottom:12px;line-height:1.1}
+.hero p{opacity:.75;max-width:620px;line-height:1.6}
+.status-grid{display:grid;grid-template-columns:repeat(3,minmax(110px,1fr));gap:12px;margin-top:20px}
+.status-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.05);padding:14px;border-radius:16px}
+.meter{height:7px;background:rgba(255,255,255,.08);border-radius:999px;margin-top:10px;overflow:hidden}
+.meter i{display:block;height:100%;width:50%;background:linear-gradient(90deg,#72efdd,#ffd166,#ff4d6d);border-radius:999px;transition:.35s}
+.status-card span{font-size:11px;opacity:.6;text-transform:uppercase}.status-card strong{display:block;margin-top:8px;font-size:24px;font-family:'Orbitron'}
+.logs{padding:18px;overflow-y:auto;font-family:monospace;font-size:13px;line-height:1.8;background:#040814}
+.log-line{margin-bottom:6px}.green{color:#72efdd}.red{color:#ff4d6d}.yellow{color:#ffd166}.blue{color:#7ec8ff}
+.terminal{padding:16px;background:#02050d;font-family:monospace;font-size:14px;display:flex;flex-direction:column}.decision-panel{background:#07101f}.decision-body{padding:16px}.decision-body p{font-size:13px;line-height:1.6;opacity:.85;margin-bottom:12px}.decision-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.decision-actions button{padding:12px;border:none;border-radius:12px;background:#10213d;color:#d7e3ff;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,.08)}.decision-actions button:hover{background:#17345f}
+.terminal-output{flex:1;overflow-y:auto;margin-bottom:10px}.term-input{display:flex;gap:8px;align-items:center}
+.term-input input{flex:1;background:#091122;border:1px solid #1b355e;color:#9fffe0;padding:12px;border-radius:12px;font-family:monospace}
+.chat{padding:14px;display:flex;flex-direction:column;gap:12px;height:calc(100% - 60px);overflow-y:auto}
+.msg{padding:12px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.05);font-size:13px;line-height:1.5;cursor:pointer;transition:.25s}.msg:hover{background:rgba(255,255,255,.075)}.msg.removing{opacity:0;transform:translateX(20px);pointer-events:none}.msg strong{display:block;margin-bottom:4px}.msg.manager{border-left:4px solid #ff4d6d}.msg.analyst{border-left:4px solid #7ec8ff}.msg.intel{border-left:4px solid #72efdd}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;z-index:999}
+.boot{width:min(900px,95%);padding:40px;border-radius:30px;background:linear-gradient(145deg,#091425,#03060f);border:1px solid rgba(255,255,255,.08);box-shadow:0 0 60px rgba(0,0,0,.7)}
+.boot h1{font-family:'Orbitron';font-size:56px;margin-bottom:20px;color:#8fd2ff}.boot p{line-height:1.8;opacity:.8;margin-bottom:18px;font-size:15px}
+.boot input{width:100%;padding:18px;border-radius:18px;border:1px solid #244d74;background:#08111f;color:white;margin-top:16px;font-size:16px}
+.boot button{margin-top:20px;padding:18px 28px;border:none;border-radius:18px;background:linear-gradient(135deg,#1e90ff,#00c2ff);color:white;font-weight:700;font-size:15px;cursor:pointer;box-shadow:0 0 25px rgba(0,150,255,.4)}
+.popup{position:fixed;bottom:30px;right:30px;width:340px;padding:18px;background:#120814;border:1px solid rgba(255,77,109,.35);border-radius:20px;box-shadow:0 0 40px rgba(255,77,109,.15);transform:translateY(160%);transition:.4s;z-index:999}
+.floating-talks{position:fixed;left:20px;bottom:20px;display:flex;flex-direction:column;gap:12px;z-index:998;pointer-events:none}
+.talk{min-width:260px;max-width:360px;background:rgba(8,12,22,.94);border:1px solid rgba(255,255,255,.08);border-left:4px solid #7ec8ff;padding:14px;border-radius:16px;animation:rise 7s forwards;box-shadow:0 0 30px rgba(0,0,0,.35)}
+.talk strong{display:block;margin-bottom:6px;color:#8fd2ff;font-size:13px}
+.talk p{font-size:12px;line-height:1.5;opacity:.82}
+@keyframes rise{0%{transform:translateY(80px);opacity:0}10%{opacity:1}85%{opacity:1}100%{transform:translateY(-40px);opacity:0}}
+.popup.show{transform:translateY(0)}.popup h4{margin-bottom:8px;color:#ff7b93}
+.footer-brand{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:3px;opacity:.35}
+.help-btn{background:rgba(255,255,255,.05);border:1px solid rgba(120,180,255,.25);color:#8fd2ff;padding:10px 18px;border-radius:12px;font-family:'Orbitron';cursor:pointer;transition:.2s}
+.help-btn:hover{background:rgba(80,140,255,.12);transform:translateY(-1px)}
+.help-modal{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;overflow-y:auto}
+.help-box{width:min(760px,96%);max-height:90vh;overflow-y:auto;background:linear-gradient(145deg,#091425,#040811);border:1px solid rgba(255,255,255,.08);border-radius:28px;padding:34px;box-shadow:0 0 60px rgba(0,0,0,.6);position:relative}
+.help-box h2{font-family:'Orbitron';font-size:34px;color:#8fd2ff;margin-bottom:18px}
+.help-box h3{margin-top:24px;margin-bottom:12px;color:#72efdd}
+.help-box p,.help-box li{line-height:1.8;opacity:.85;font-size:14px}
+.help-box ul{padding-left:22px;margin-top:14px}
+.cmd-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+.cmd-list div{background:#07111f;border:1px solid rgba(255,255,255,.06);padding:12px;border-radius:12px;font-family:monospace;color:#9fffe0}
+.help-box button{margin-top:28px;padding:16px 22px;border:none;border-radius:16px;background:linear-gradient(135deg,#1e90ff,#00c2ff);color:white;font-weight:700;cursor:pointer}
+.close-help{position:sticky;top:0;float:right;width:44px;height:44px;border-radius:999px!important;padding:0!important;font-size:18px;background:#12213d!important;border:1px solid rgba(255,255,255,.1)!important;box-shadow:none!important;z-index:2}
+@media(max-width:1200px){.main{grid-template-columns:1fr;overflow:auto;height:auto;padding:12px}.workspace{grid-template-rows:auto auto 280px}.status-grid{grid-template-columns:repeat(2,1fr)}body{overflow:auto}.topbar{padding:0 14px}.logo{font-size:16px;line-height:1.2;max-width:65%}.clock{font-size:13px}.hero{padding:18px}.hero h1{font-size:24px}.hero p{font-size:13px}.panel{border-radius:18px}.boot{padding:24px}.boot h1{font-size:34px}.boot p{font-size:13px;line-height:1.7}.boot input,.boot button{padding:16px;font-size:15px}.alerts{max-height:420px}.logs{min-height:320px}.terminal{min-height:260px}.chat{min-height:260px}.popup{width:92%;right:4%;bottom:18px}}
+@media(max-width:700px){.help-box{padding:22px}.help-box h2{font-size:24px}.cmd-list{grid-template-columns:1fr}.main{display:flex;flex-direction:column;gap:14px;padding:10px}.status-grid{grid-template-columns:1fr 1fr;gap:10px}.status-card strong{font-size:18px}.panel-title{font-size:12px;padding:14px 16px}.alert h3{font-size:13px}.alert p{font-size:11px}.hero h1{font-size:20px}.hero p{font-size:12px;line-height:1.5}.footer-brand{font-size:9px;letter-spacing:2px}.term-input input{font-size:13px;padding:10px}.logs{font-size:11px}.msg{font-size:12px}.boot{width:94%;padding:20px;border-radius:22px}.boot h1{font-size:28px}.boot input,.boot button{border-radius:14px}.topbar{height:60px}.workspace{display:flex;flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="overlay" id="overlay">
+<div class="boot">
+<h1>ORBITAL WATCH</h1>
+<p>18:01 PM ... sexta-feira ... LATAM SOC REGION.<br><br>O plantão anterior saiu sem handover.<br>O SIEM está lento.<br>O gerente já perguntou três vezes se vai afetar cliente.</p>
+<p>Você não responderá perguntas.<br>Você sobreviverá ao turno.<br>Ou não.</p>
+<input type="text" id="analystName" placeholder="Digite seu nome operacional">
+<button onclick="startSOC()">ENTRAR NO SOC</button>
+</div>
+</div>
+<div class="help-modal" id="helpModal">
+<div class="help-box">
+<button class="close-help" onclick="closeHelp()">✕</button>
+<h2>COMO SOBREVIVER AO TURNO</h2>
+<p>
+Você NÃO está respondendo perguntas.<br><br>
+Você está operando um SOC em tempo real.
+</p>
+<ul>
+<li>Clique nos alertas para investigar eventos. Todos aparecem neutros: quem classifica gravidade é você.</li>
+<li>Observe logs chegando em tempo real.</li>
+<li>Use o terminal para coletar evidências.</li>
+<li>Nem todo alerta é incidente.</li>
+<li>Bloquear errado pode afetar produção.</li>
+<li>Alguns eventos evoluem com o tempo.</li>
+<li>O chat corporativo pode ajudar ... ou atrapalhar. Clique nas mensagens para limpar ruído da tela.</li>
+</ul>
+<h3>COMO O TURNO TERMINA</h3>
+<p>
+O turno termina quando o stress operacional atingir 100% ... ou quando você estabilizar o ambiente.
+</p>
+<ul>
+<li>Investigar corretamente reduz impacto.</li>
+<li>Ignorar incidentes aumenta stress.</li>
+<li>Alguns alertas evoluem para comprometimento real.</li>
+<li>Se produção cair ... o turno praticamente acabou.</li>
+<li>O objetivo é sobreviver até o fim do plantão.</li>
+</ul>
+<h3>COMANDOS ÚTEIS</h3>
+<div class="cmd-list">
+<div>help</div>
+<div>whoami</div>
+<div>netstat</div>
+<div>ps</div>
+<div>timeline</div>
+<div>powershell</div>
+<div>dns</div>
+<div>ioc</div>
+<div>proxy</div>
+<div>edr</div>
+<div>vpn</div>
+<div>mfa</div>
+<div>isolate</div>
+<div>ticket</div>
+<div>coffee</div>
+<div>reboot</div>
+</div>
+<p style="margin-top:14px">
+Nem todo comando ajuda. Alguns só geram ruído operacional ... igual vida real, só que com menos reunião inútil.
+</p>
+<button onclick="closeHelp()">ENTENDI ... QUE DEUS ME AJUDE</button>
+</div>
+</div>
+<div class="topbar">
+<button class="help-btn" onclick="openHelp()">HELP</button>
+<div class="logo">ORBITAL WATCH // SHIFT 18:01</div>
+<div class="clock" id="clock">18:01:04</div>
+</div>
+<div class="main">
+<div class="panel">
+<div class="panel-title">Fila de Alertas</div>
+<div class="alerts" id="alertsQueue">
+<div class="alert" data-id="init1" data-title="Login VPN fora do padrão" data-detail="Usuário financeiro ... ASN residencial ... MFA aprovado após múltiplas tentativas" data-severity="critical" data-hint="vpn mfa" onclick="handleAlert(this,'dynamic')"><h3>Login VPN fora do padrão</h3><p>Usuário financeiro ... ASN residencial ... MFA aprovado após múltiplas tentativas</p><small>Clique para analisar e classificar</small></div>
+<div class="alert" data-id="init2" data-title="Planilha com macro assinada" data-detail="Arquivo interno abriu macro em host do financeiro" data-severity="suspicious" data-hint="powershell timeline" onclick="handleAlert(this,'dynamic')"><h3>Planilha com macro assinada</h3><p>Arquivo interno abriu macro em host do financeiro</p><small>Clique para analisar e classificar</small></div>
+<div class="alert" data-id="init3" data-title="Impressora indisponível" data-detail="RH reportou PDF cortado antes do fechamento" data-severity="noise" data-hint="ticket" onclick="handleAlert(this,'dynamic')"><h3>Impressora indisponível</h3><p>RH reportou PDF cortado antes do fechamento</p><small>Clique para analisar e classificar</small></div>
+<div class="alert" data-id="init4" data-title="DNS com intervalo regular" data-detail="Host FINANCE-WS22 consultando domínio recém-criado a cada 60s" data-severity="critical" data-hint="dns proxy" onclick="handleAlert(this,'dynamic')"><h3>DNS com intervalo regular</h3><p>Host FINANCE-WS22 consultando domínio recém-criado a cada 60s</p><small>Clique para analisar e classificar</small></div>
+<div class="alert" data-id="init5" data-title="Alto uso de CPU" data-detail="Servidor de BI com pico após carga programada" data-severity="noise" data-hint="ticket" onclick="handleAlert(this,'dynamic')"><h3>Alto uso de CPU</h3><p>Servidor de BI com pico após carga programada</p><small>Clique para analisar e classificar</small></div>
+</div>
+</div>
+<div class="workspace">
+<div class="panel hero">
+<div>
+<h1>SOC ACTIVE</h1>
+<p>Você está sozinho no turno ... cada decisão altera o ambiente operacional.</p>
+<div class="status-grid">
+<div class="status-card"><span>Incidentes</span><strong id="incidents">2</strong></div>
+<div class="status-card"><span>Hosts</span><strong id="hosts">4</strong></div>
+<div class="status-card"><span>Stress</span><strong id="stress">37%</strong><div class="meter"><i id="stressBar"></i></div></div>
+<div class="status-card"><span>Estabilidade</span><strong id="stability">72%</strong><div class="meter"><i id="stabilityBar"></i></div></div>
+<div class="status-card"><span>Produção</span><strong id="prod">OK</strong></div>
+<div class="status-card"><span>Confiança</span><strong id="confidence">61%</strong><div class="meter"><i id="confidenceBar"></i></div></div>
+<div class="status-card"><span>Tempo</span><strong id="timer">05:00</strong><div class="meter"><i id="timerBar"></i></div></div>
+<div class="status-card"><span>Fila</span><strong id="queueCount">0</strong></div>
+</div>
+</div>
+</div>
+<div class="panel logs" id="logs">
+<div class="log-line green">[18:01:09] SOC iniciado ... aguardando estabilização operacional</div>
+<div class="log-line yellow">[18:01:12] 12 novos alertas recebidos</div>
+<div class="log-line red">[18:01:16] SIEM response time acima do esperado</div>
+<div class="log-line blue">[18:01:24] Teams: gerente.online entrou no canal WAR ROOM</div>
+</div>
+<div class="panel decision-panel">
+<div class="panel-title">Classificação do Analista</div>
+<div class="decision-body">
+<p id="selectedAlertText">Selecione um alerta na fila, analise evidências no terminal e decida.</p>
+<div class="decision-actions">
+<button onclick="classifySelected('encerrar')">ENCERRAR COMO RUÍDO</button>
+<button onclick="classifySelected('monitorar')">MONITORAR</button>
+<button onclick="classifySelected('escalar')">ESCALAR INCIDENTE</button>
+</div>
+</div>
+</div>
+<div class="panel terminal">
+<div class="panel-title">Terminal Operacional</div>
+<div class="terminal-output" id="terminalOutput">
+<div class="green">orbital@soc:~$ conexão estabelecida</div>
+<div class="yellow">dica: digite help para ver comandos disponíveis</div>
+</div>
+<div class="term-input"><span class="green">$</span><input id="cmd" type="text" placeholder="Digite comandos operacionais"></div>
+</div>
+</div>
+<div class="panel">
+<div class="panel-title">Chat Corporativo</div>
+<div class="chat" id="corpChat">
+<div class="msg analyst" onclick="dismissChat(this)"><strong>Marcelo N2</strong>PowerShell com winword.exe como parent pode ser macro legítima de relatório ... mas também é vetor clássico. Eu validaria linha de comando antes de bloquear.</div>
+<div class="msg manager" onclick="dismissChat(this)"><strong>Gestão</strong>Se for cliente premium, prioriza contenção sem derrubar ERP. Bloqueio cego em sexta-feira vira reunião com 19 pessoas inúteis.</div>
+<div class="msg intel" onclick="dismissChat(this)"><strong>Threat Intel</strong>Domínio recém-criado com beaconing regular merece correlação com proxy, DNS e processo de origem.</div>
+<div class="msg analyst" onclick="dismissChat(this)"><strong>Camila SOC</strong>VPN fora do padrão não prova invasão. Verifica geolocalização, device, MFA e histórico do usuário.</div>
+<div class="msg manager" onclick="dismissChat(this)"><strong>Operações</strong>Impressora, Wi‑Fi e Excel são ruído operacional ... mas ruído também consome tempo e aumenta stress.</div>
+</div>
+</div>
+</div>
+<div class="popup" id="popup"><h4>ALERTA OPERACIONAL</h4><p id="popupText"></p></div>
+<div class="floating-talks" id="talks"></div>
+<div class="footer-brand">MARIANA BS // BE SAFE</div>
+<script>
+const logs = document.getElementById('logs');
+const popup = document.getElementById('popup');
+const popupText = document.getElementById('popupText');
+const corpChat = document.getElementById('corpChat');
+const alertsQueue = document.getElementById('alertsQueue');
+
+let stress = 37;
+let incidents = 2;
+let hosts = 4;
+let stability = 72;
+let confidence = 61;
+let gameEnded = false;
+let eventTimer = null;
+let countdownTimer = null;
+let remainingSeconds = 300;
+let selectedAlert = null;
+let handledAlerts = 0;
+let correctDecisions = 0;
+let missedCritical = 0;
+
+const talksPool = [
+  ['Usuário RH', 'a impressora parou de funcionar bem na hora do relatório'],
+  ['Gerência', 'isso vai impactar cliente premium?'],
+  ['Infraestrutura', 'quem reiniciou a VPN de novo?'],
+  ['Marcelo N2', 'isso parece falso positivo ... mas valida antes de ignorar'],
+  ['Financeiro', 'o Excel travou depois da atualização'],
+  ['Threat Intel', 'IOC novo relacionado a stealer LATAM'],
+  ['Diretoria', 'não derrubem produção hoje pelo amor de Deus']
+];
+
+const chatPool = [
+  ['Marcelo N2','Eu não bloquearia só por geolocalização. Primeiro olha device, MFA e ASN. Parece cauteloso ... e é.'],
+  ['Threat Intel','Beaconing com intervalo regular e domínio novo pesa mais que um alerta isolado. Correlaciona DNS com processo.'],
+  ['Gestão','Se derrubar ERP sem evidência, você vira pauta da segunda-feira. Contenção precisa ter justificativa.'],
+  ['Camila SOC','EDR offline logo após execução suspeita não deve ser tratado como coincidência bonita.'],
+  ['Infraestrutura','Pode ser só rede instável. Mas se o host sumiu junto com IOC, eu não dormiria tranquilo.'],
+  ['Financeiro','A planilha é urgente. Não é incidente, mas vai tentar roubar sua atenção.'],
+  ['Operações','Ticket barulhento não é ticket prioritário. Impacto em segurança e produção manda na fila.'],
+  ['Threat Hunter','Um comando isolado não fecha incidente. Timeline fecha incidente.'],
+  ['Marcelo N2','Ignora esse DNS aí ... CDN vive fazendo coisa estranha. Parece verdade, mas é conselho perigoso sem evidência.'],
+  ['Gestão','Preciso de resposta executiva: impacto, contenção, risco residual e próximo passo. Sem novela.']
+];
+
+const alertTemplates = [
+  {title:'Atualização de agente falhou', detail:'Host OPS-WS14 reiniciou serviço 3 vezes após patch aprovado', severity:'noise', hint:'edr ticket'},
+  {title:'Login VPN fora do padrão', detail:'Usuário financeiro em ASN residencial, MFA aprovado após múltiplas tentativas', severity:'critical', hint:'vpn mfa'},
+  {title:'DNS com intervalo regular', detail:'FINANCE-WS22 consulta domínio recém-criado a cada 60 segundos', severity:'critical', hint:'dns proxy'},
+  {title:'Upload externo baixo volume', detail:'Proxy marcou 480KB enviados para storage desconhecido em janelas repetidas', severity:'suspicious', hint:'proxy ioc'},
+  {title:'Planilha com macro assinada', detail:'Arquivo interno abriu macro em host financeiro, sem bloqueio automático', severity:'suspicious', hint:'powershell timeline'},
+  {title:'EDR sem telemetria', detail:'Notebook de engenharia perdeu check-in após conexão em rede visitante', severity:'critical', hint:'edr timeline'},
+  {title:'Impressora indisponível', detail:'RH reportou PDF cortado antes do fechamento mensal', severity:'noise', hint:'ticket'},
+  {title:'Falha de autenticação repetida', detail:'Usuário de compras errou senha 9 vezes em 4 minutos', severity:'suspicious', hint:'mfa vpn'},
+  {title:'Processo filho incomum', detail:'winword.exe iniciou powershell.exe com argumento codificado', severity:'critical', hint:'powershell ps'},
+  {title:'Wi-Fi instável na reunião', detail:'Sala executiva reclama de queda intermitente antes do happy hour', severity:'noise', hint:'ticket'},
+  {title:'Novo serviço no host', detail:'Serviço updater_svc criado fora da janela de mudança', severity:'critical', hint:'timeline edr'},
+  {title:'Acesso a painel legado', detail:'Conta de fornecedor acessou painel antigo a partir de IP conhecido', severity:'suspicious', hint:'vpn ticket'},
+  {title:'Alto uso de CPU', detail:'Servidor de BI com pico após carga programada', severity:'noise', hint:'ticket'},
+  {title:'Hash raro em estação', detail:'Arquivo temporário executado em AppData e removido em seguida', severity:'critical', hint:'edr ioc'},
+  {title:'Consulta a domínio estranho', detail:'Domínio parece CDN, mas foi criado há 2 dias', severity:'suspicious', hint:'dns ioc'}
+];
+
+function openHelp() {
+  const modal = document.getElementById('helpModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeHelp() {
+  const modal = document.getElementById('helpModal');
+  if (modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeHelp();
+});
+
+function startSOC() {
+  const input = document.getElementById('analystName');
+  const name = input ? input.value.trim() : '';
+  if (!name) {
+    showPopup('Nome obrigatório ... o SOC não aceita analista fantasma de LinkedIn.');
+    return;
+  }
+
+  const overlay = document.getElementById('overlay');
+  if (overlay) overlay.style.display = 'none';
+
+  resetQueuesForStart();
+  appendLog('[18:01:51] Analista ' + name + ' autenticado no ambiente', 'green');
+  appendLog('[18:01:55] Dica operacional: digite help no terminal para listar comandos', 'yellow');
+  createTalk('Sistema', 'plantão iniciado ... boa sorte, porque procedimento mesmo ninguém deixou');
+  updateStats();
+
+  if (!eventTimer) eventTimer = setInterval(randomEvent, 3200);
+  if (!countdownTimer) countdownTimer = setInterval(tickGame, 1000);
+}
+
+function resetQueuesForStart() {
+  if (!alertsQueue) return;
+  if (alertsQueue.children.length < 5) {
+    for (let i = alertsQueue.children.length; i < 7; i++) addAlertToQueue(false);
+  }
+}
+
+function appendLog(text, color = 'green') {
+  if (!logs) return;
+  const div = document.createElement('div');
+  div.className = 'log-line ' + color;
+  div.textContent = text;
+  logs.appendChild(div);
+  logs.scrollTop = logs.scrollHeight;
+}
+
+function addAlertToQueue(shouldUpdate = true) {
+  if (!alertsQueue || gameEnded) return;
+  const t = alertTemplates[Math.floor(Math.random() * alertTemplates.length)];
+  const div = document.createElement('div');
+  div.className = 'alert';
+  div.dataset.id = 'a' + Date.now() + Math.floor(Math.random() * 9999);
+  div.dataset.title = t.title;
+  div.dataset.detail = t.detail;
+  div.dataset.severity = t.severity;
+  div.dataset.hint = t.hint;
+  div.onclick = function() { handleAlert(div); };
+  div.innerHTML = '<h3>' + t.title + '</h3><p>' + t.detail + '</p><small>Clique para analisar e classificar</small>';
+  alertsQueue.appendChild(div);
+  if (shouldUpdate) updateStats();
+}
+
+function handleAlert(element) {
+  if (gameEnded || !element || !element.dataset) return;
+  selectedAlert = {
+    title: element.dataset.title || 'Alerta sem título',
+    detail: element.dataset.detail || 'Sem detalhe disponível',
+    severity: element.dataset.severity || 'suspicious',
+    hint: element.dataset.hint || 'help',
+    element: element
+  };
+
+  showPopup('Alerta selecionado. Use a CLI para buscar evidência e depois classifique: encerrar, monitorar ou escalar.');
+  appendLog('[TRIAGEM] Alerta selecionado: ' + selectedAlert.title + ' | comandos sugeridos: ' + selectedAlert.hint, 'blue');
+  createTalk('Triagem', 'alerta em análise: ' + selectedAlert.title);
+}
+
+function classifySelected(action) {
+  if (!selectedAlert || gameEnded) {
+    showPopup('Selecione um alerta antes de decidir ... adivinhação é bonito só em horóscopo corporativo.');
+    return;
+  }
+
+  const sev = selectedAlert.severity;
+  let good = false;
+  if (sev === 'noise' && action === 'encerrar') good = true;
+  if (sev === 'suspicious' && action === 'monitorar') good = true;
+  if (sev === 'critical' && action === 'escalar') good = true;
+
+  handledAlerts++;
+  if (good) {
+    correctDecisions++;
+    confidence += 6;
+    stress = Math.max(0, stress - 3);
+    stability += 2;
+    appendLog('[DECISÃO CORRETA] ' + selectedAlert.title + ' -> ' + action, 'green');
+    showPopup('Boa decisão. Evidência antes de ego ... raro, mas lindo.');
+  } else {
+    confidence -= 7;
+    stress += 8;
+    stability -= sev === 'critical' ? 10 : 4;
+    if (sev === 'critical') missedCritical++;
+    appendLog('[DECISÃO RUIM] ' + selectedAlert.title + ' -> ' + action + ' | classificação real: ' + sev, 'red');
+    showPopup('Decisão fraca. O ambiente sentiu ... e a segunda-feira também.');
+  }
+
+  const oldElement = selectedAlert.element;
+  selectedAlert = null;
+
+  if (oldElement && oldElement.parentNode) {
+    oldElement.classList.add('removing');
+    setTimeout(function() {
+      if (oldElement.parentNode) oldElement.remove();
+      addAlertToQueue();
+      addAlertToQueue();
+      updateStats();
+    }, 260);
+  } else {
+    addAlertToQueue();
+    updateStats();
+  }
+}
+
+function dismissChat(element) {
+  if (!element) return;
+  element.classList.add('removing');
+  setTimeout(function() { if (element.parentNode) element.remove(); }, 260);
+}
+
+function updateStats() {
+  stress = Math.max(0, Math.min(100, stress));
+  stability = Math.max(0, Math.min(100, stability));
+  confidence = Math.max(0, Math.min(100, confidence));
+
+  const stressEl = document.getElementById('stress');
+  const incidentsEl = document.getElementById('incidents');
+  const hostsEl = document.getElementById('hosts');
+  const stabilityEl = document.getElementById('stability');
+  const confidenceEl = document.getElementById('confidence');
+  const queueEl = document.getElementById('queueCount');
+
+  if (stressEl) stressEl.innerText = stress + '%';
+  if (incidentsEl) incidentsEl.innerText = incidents;
+  if (hostsEl) hostsEl.innerText = hosts;
+  if (stabilityEl) stabilityEl.innerText = stability + '%';
+  if (confidenceEl) confidenceEl.innerText = confidence + '%';
+  if (queueEl) queueEl.innerText = alertsQueue ? alertsQueue.children.length : 0;
+
+  const stressBar = document.getElementById('stressBar');
+  const stabilityBar = document.getElementById('stabilityBar');
+  const confidenceBar = document.getElementById('confidenceBar');
+  const timerBar = document.getElementById('timerBar');
+  if (stressBar) stressBar.style.width = stress + '%';
+  if (stabilityBar) stabilityBar.style.width = stability + '%';
+  if (confidenceBar) confidenceBar.style.width = confidence + '%';
+  if (timerBar) timerBar.style.width = (remainingSeconds / 300 * 100) + '%';
+
+  const prod = document.getElementById('prod');
+  if (prod) prod.innerText = stability < 35 ? 'RISCO' : stability < 55 ? 'DEGRADADA' : 'OK';
+
+  if (stress >= 100 && !gameEnded) endGame('collapse');
+  if (stability <= 0 && !gameEnded) endGame('collapse');
+}
+
+function showPopup(msg) {
+  if (!popup || !popupText) return;
+  popupText.textContent = msg;
+  popup.classList.add('show');
+  setTimeout(function() { popup.classList.remove('show'); }, 5000);
+}
+
+function createTalk(name, msg) {
+  const talks = document.getElementById('talks');
+  if (!talks) return;
+  const div = document.createElement('div');
+  div.className = 'talk';
+  div.innerHTML = '<strong>' + name + '</strong><p>' + msg + '</p>';
+  talks.appendChild(div);
+  setTimeout(function() { if (div.parentNode) div.remove(); }, 7000);
+}
+
+function tickGame() {
+  if (gameEnded) return;
+  remainingSeconds--;
+  const timer = document.getElementById('timer');
+  if (timer) {
+    const m = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
+    const s = String(remainingSeconds % 60).padStart(2, '0');
+    timer.innerText = m + ':' + s;
+  }
+  updateStats();
+  if (remainingSeconds <= 0) endGame('timeout');
+}
+
+function randomEvent() {
+  if (gameEnded) return;
+  const burst = Math.random() > 0.6 ? 2 : 1;
+  for (let i = 0; i < burst; i++) addAlertToQueue(false);
+
+  if (alertsQueue && alertsQueue.children.length > 14) {
+    stress += 5;
+    confidence -= 2;
+    appendLog('[FILA] Acúmulo de alertas aumentando pressão operacional', 'red');
+  }
+
+  const events = [
+    '[18:17:22] Novo alerta entrou na fila sem classificação automática',
+    '[18:19:10] Proxy adicionou evidência parcial ... insuficiente sozinho',
+    '[18:22:49] Teams: isso afeta cliente premium?',
+    '[18:25:03] SIEM perdeu indexação temporariamente',
+    '[18:27:15] Novo IOC exige correlação antes de escalonamento',
+    '[18:29:02] Ticket não prioritário entrou como URGENTE',
+    '[18:31:44] Endpoint reconnect inesperado detectado'
+  ];
+  const colors = ['yellow', 'red', 'blue', 'green'];
+  appendLog(events[Math.floor(Math.random() * events.length)], colors[Math.floor(Math.random() * colors.length)]);
+
+  stress += Math.floor(Math.random() * 3);
+  stability -= Math.floor(Math.random() * 2);
+
+  const t = talksPool[Math.floor(Math.random() * talksPool.length)];
+  createTalk(t[0], t[1]);
+
+  if (corpChat && Math.random() > 0.35) {
+    const c = chatPool[Math.floor(Math.random() * chatPool.length)];
+    const msg = document.createElement('div');
+    msg.className = 'msg analyst';
+    msg.onclick = function() { dismissChat(msg); };
+    msg.innerHTML = '<strong>' + c[0] + '</strong>' + c[1];
+    corpChat.appendChild(msg);
+    corpChat.scrollTop = corpChat.scrollHeight;
+  }
+  updateStats();
+}
+
+function endGame(type) {
+  gameEnded = true;
+  if (eventTimer) clearInterval(eventTimer);
+  if (countdownTimer) clearInterval(countdownTimer);
+  eventTimer = null;
+  countdownTimer = null;
+
+  const finalOverlay = document.createElement('div');
+  finalOverlay.className = 'overlay';
+  finalOverlay.id = 'finalOverlay';
+
+  let title = 'TURNO ENCERRADO';
+  let desc = 'O turno acabou ... e milagrosamente ainda existe rede.';
+  if (type === 'collapse') {
+    title = 'PRODUÇÃO COMPROMETIDA';
+    desc = 'O SOC colapsou sob pressão operacional ... alguém provavelmente vai abrir reunião segunda-feira às 08:00.';
+  }
+  if (type === 'timeout') {
+    title = stability >= 45 && confidence >= 50 ? 'TURNO SOBREVIVEU' : 'TURNO ENCERRADO COM RISCO';
+    desc = stability >= 45 && confidence >= 50 ? 'Cinco minutos de caos contidos com evidência e triagem.' : 'O tempo acabou ... o SOC não caiu, mas o relatório de segunda-feira vem com gosto de café frio.';
+  }
+
+  finalOverlay.innerHTML = '<div class="boot"><h1>' + title + '</h1><p>' + desc + '</p><p>SHIFT REPORT<br><br>Alertas tratados: ' + handledAlerts + '<br>Decisões corretas: ' + correctDecisions + '<br>Incidentes perdidos: ' + missedCritical + '<br>Hosts afetados: ' + hosts + '<br>Stress final: ' + stress + '%<br>Estabilidade final: ' + stability + '%<br>Confiança operacional: ' + confidence + '%</p><div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:24px"><button onclick="downloadCertificate()">BAIXAR CERTIFICADO PNG</button><button onclick="restartShift()">INICIAR NOVO TURNO</button></div></div>';
+  document.body.appendChild(finalOverlay);
+}
+
+function downloadCertificate() {
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1600;
+    canvas.height = 900;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return showPopup('Não consegui gerar o certificado ... canvas indisponível.');
+
+    const bg = ctx.createLinearGradient(0, 0, 1600, 900);
+    bg.addColorStop(0, '#07111f');
+    bg.addColorStop(1, '#12284a');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, 1600, 900);
+    ctx.strokeStyle = '#5ec8ff';
+    ctx.lineWidth = 8;
+    ctx.strokeRect(44, 44, 1512, 812);
+    ctx.strokeStyle = 'rgba(114,239,221,0.75)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(72, 72, 1456, 756);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#8fd2ff';
+    ctx.font = '700 66px Arial, sans-serif';
+    ctx.fillText('SHIFT REPORT CERTIFICATE', 800, 145);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '32px Arial, sans-serif';
+    ctx.fillText('ORBITAL WATCH // SOC SHIFT 18:01', 800, 215);
+    const input = document.getElementById('analystName');
+    const analyst = input && input.value.trim() ? input.value.trim() : 'Analista';
+    ctx.fillStyle = '#72efdd';
+    ctx.font = '700 58px Arial, sans-serif';
+    ctx.fillText(analyst, 800, 330);
+    ctx.fillStyle = '#d7e3ff';
+    ctx.font = '30px Arial, sans-serif';
+    wrapCanvasText(ctx, 'Concluiu o turno operacional de SOC às 18:01 de sexta-feira, realizando triagem, correlação de evidências e tomada de decisão sob pressão.', 800, 420, 1120, 40);
+    ctx.fillStyle = '#ffd166';
+    ctx.font = '28px Arial, sans-serif';
+    ctx.fillText('Alertas tratados: ' + handledAlerts, 800, 555);
+    ctx.fillText('Decisões corretas: ' + correctDecisions, 800, 610);
+    ctx.fillText('Incidentes perdidos: ' + missedCritical, 800, 665);
+    ctx.fillText('Stress final: ' + stress + '% | Estabilidade: ' + stability + '% | Confiança: ' + confidence + '%', 800, 720);
+    ctx.fillStyle = '#8fd2ff';
+    ctx.font = '700 24px Arial, sans-serif';
+    ctx.fillText('MARIANA BS // BE SAFE', 800, 835);
+
+    const filename = 'orbital-watch-shift-report-' + analyst.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '.png';
+    canvas.toBlob(function(blob) {
+      if (!blob) return fallbackCertificateDownload(canvas, filename);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(function() { URL.revokeObjectURL(url); link.remove(); }, 500);
+      showPopup('Certificado PNG gerado.');
+    }, 'image/png');
+  } catch (err) {
+    showPopup('Erro ao gerar certificado PNG: ' + err.message);
+  }
+}
+
+function fallbackCertificateDownload(canvas, filename) {
+  const link = document.createElement('a');
+  link.href = canvas.toDataURL('image/png');
+  link.download = filename;
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  link.click();
+  setTimeout(function() { link.remove(); }, 500);
+}
+
+function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(' ');
+  let line = '';
+  const lines = [];
+  for (let n = 0; n < words.length; n++) {
+    const testLine = line + words[n] + ' ';
+    if (ctx.measureText(testLine).width > maxWidth && n > 0) {
+      lines.push(line.trim());
+      line = words[n] + ' ';
+    } else {
+      line = testLine;
+    }
+  }
+  lines.push(line.trim());
+  const startY = y - ((lines.length - 1) * lineHeight) / 2;
+  lines.forEach(function(currentLine, index) { ctx.fillText(currentLine, x, startY + index * lineHeight); });
+}
+
+function restartShift() {
+  const finalOverlay = document.getElementById('finalOverlay');
+  if (finalOverlay) finalOverlay.remove();
+  stress = 37;
+  incidents = 2;
+  hosts = 4;
+  stability = 72;
+  confidence = 61;
+  gameEnded = false;
+  eventTimer = null;
+  countdownTimer = null;
+  remainingSeconds = 300;
+  selectedAlert = null;
+  handledAlerts = 0;
+  correctDecisions = 0;
+  missedCritical = 0;
+  if (alertsQueue) alertsQueue.innerHTML = '';
+  for (let i = 0; i < 7; i++) addAlertToQueue(false);
+  const timer = document.getElementById('timer');
+  if (timer) timer.innerText = '05:00';
+  const logsBox = document.getElementById('logs');
+  if (logsBox) logsBox.innerHTML = '<div class="log-line green">[18:01:09] SOC reiniciado ... fila operacional restaurada</div><div class="log-line yellow">[18:01:12] Dica: selecione alertas, investigue na CLI e classifique</div>';
+  const term = document.getElementById('terminalOutput');
+  if (term) term.innerHTML = '<div class="green">orbital@soc:~$ conexão estabelecida</div><div class="yellow">dica: digite help para ver comandos disponíveis</div>';
+  updateStats();
+  const overlay = document.getElementById('overlay');
+  if (overlay) overlay.style.display = 'flex';
+}
+
+setInterval(function() {
+  const clock = document.getElementById('clock');
+  if (clock) clock.innerText = new Date().toLocaleTimeString('pt-BR');
+}, 1000);
+
+const cmdInput = document.getElementById('cmd');
+if (cmdInput) {
+  cmdInput.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    const cmd = this.value.trim();
+    if (!cmd) return;
+    const term = document.getElementById('terminalOutput');
+    if (!term) return;
+    const line = document.createElement('div');
+    line.innerHTML = '<span class="blue">orbital@soc:~$</span> ' + cmd;
+    term.appendChild(line);
+    const c = cmd.toLowerCase();
+    let response = 'comando não reconhecido ... digite help para ver comandos úteis';
+    if (c === 'help') response = 'Comandos: whoami, netstat, ps, timeline, powershell, dns, ioc, proxy, edr, vpn, mfa, isolate, ticket, coffee, reboot, encerrar, monitorar, escalar';
+    if (c.includes('whoami')) response = 'soc_analyst_l1';
+    if (c.includes('netstat')) response = 'tcp 443 ESTABLISHED -> 185.193.44.12 | tcp 443 ESTABLISHED -> 10.10.4.18 | udp 53 ACTIVE';
+    if (c === 'ps' || c.includes('process')) response = 'winword.exe -> powershell.exe -> rundll32.exe | cadeia suspeita, mas precisa correlacionar com usuário e horário';
+    if (c.includes('timeline')) response = '18:03 email recebido | 18:05 winword.exe aberto | 18:06 powershell encoded | 18:10 DNS beaconing | 18:12 EDR offline';
+    if (c.includes('powershell')) response = 'EncodedCommand detectado: execução ofuscada iniciada por documento Office. Alta suspeita, validar origem.';
+    if (c.includes('ioc')) response = 'IOC: cdn-sync-storage.live | 185.193.44.12 | hash parcial 9f2a... | campanha compatível com infostealer';
+    if (c.includes('dns')) response = 'Múltiplas consultas para domínio recém-criado em intervalo regular de 60s. Padrão sugere beaconing.';
+    if (c.includes('proxy')) response = 'Proxy: upload pequeno e recorrente para domínio recém-criado. Volume baixo não elimina exfiltração.';
+    if (c.includes('edr')) response = 'EDR: FINANCE-WS22 com alerta ativo | ENG-LT19 sem telemetria | último check-in há 17min';
+    if (c.includes('vpn')) response = 'VPN: login vindo de ASN residencial. Verificar viagem, device conhecido e MFA antes de classificar.';
+    if (c.includes('mfa')) response = 'MFA: aprovado por push após 2 tentativas negadas. Pode ser fadiga de MFA ... ou usuário confuso. Valide.';
+    if (c.includes('ticket')) response = 'Tickets: impressora RH, Excel lento, Wi-Fi reunião, PowerShell suspeito, EDR offline. Nem tudo tem a mesma prioridade.';
+    if (c.includes('coffee')) response = 'Café encontrado: frio, amargo e com mais estabilidade que o SIEM.';
+    if (c.includes('isolate')) { response = 'Ação simulada: isolamento solicitado. Bom para host suspeito, péssimo se aplicado sem evidência.'; stress += 3; stability -= 2; updateStats(); }
+    if (c.includes('reboot')) { response = 'Reboot sem coleta prévia apaga contexto volátil. O auditor chorou em silêncio.'; confidence -= 5; stress += 5; updateStats(); }
+    if (c === 'encerrar' || c === 'monitorar' || c === 'escalar') classifySelected(c);
+    const out = document.createElement('div');
+    out.className = 'green';
+    out.textContent = response;
+    term.appendChild(out);
+    term.scrollTop = term.scrollHeight;
+    this.value = '';
+  });
+}
+
+updateStats();
+</script>
+</body>
+</html>
